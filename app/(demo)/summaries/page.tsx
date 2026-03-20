@@ -41,9 +41,7 @@ export default function SummariesPage() {
               key={s._id}
               className="rounded-2xl border border-zinc-800 bg-[#111318] p-4"
             >
-              <p className="text-sm font-medium text-zinc-400">
-                {s.date}
-              </p>
+              <p className="text-sm font-medium text-zinc-400">{s.date}</p>
               <div className="mt-2 space-y-1 text-sm text-zinc-300">
                 {s.totalSteps != null && (
                   <p>{s.totalSteps.toLocaleString()} steps</p>

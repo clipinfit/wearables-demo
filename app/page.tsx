@@ -1,6 +1,10 @@
 "use client";
 
-import type { DailySummary, SleepEvent, WorkoutEvent } from "@clipin/convex-wearables";
+import type {
+  DailySummary,
+  SleepEvent,
+  WorkoutEvent,
+} from "@clipin/convex-wearables";
 import { useQuery } from "convex/react";
 import {
   Activity,
@@ -61,7 +65,7 @@ function fmtDuration(mins: number | null | undefined): string {
 }
 
 function dayLabel(dateStr: string): string {
-  const d = new Date(dateStr + "T12:00:00");
+  const d = new Date(`${dateStr}T12:00:00`);
   return d.toLocaleDateString("en-US", { weekday: "short" });
 }
 
@@ -98,7 +102,13 @@ function ProgressRing({
   const offset = circ * (1 - Math.min(progress, 1));
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
+      <svg
+        width={size}
+        height={size}
+        className="-rotate-90"
+        role="img"
+        aria-label="Progress ring"
+      >
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -127,10 +137,7 @@ function ProgressRing({
   );
 }
 
-function getSleepForDate(
-  sleepEvents: SleepEvent[],
-  dateStr: string,
-): number {
+function getSleepForDate(sleepEvents: SleepEvent[], dateStr: string): number {
   // Match sleep to the day the user woke up.
   // If sleep starts after 6pm, it belongs to the next calendar day.
   for (const s of sleepEvents) {
@@ -138,9 +145,7 @@ function getSleepForDate(
     const start = new Date(s.startDatetime);
     const wakeDate =
       start.getHours() >= 18
-        ? new Date(start.getTime() + 86_400_000)
-            .toISOString()
-            .split("T")[0]
+        ? new Date(start.getTime() + 86_400_000).toISOString().split("T")[0]
         : start.toISOString().split("T")[0];
     if (wakeDate === dateStr) return s.sleepTotalDurationMinutes;
   }
@@ -152,9 +157,7 @@ function HealthScoreSection({
   sleepEvents,
 }: {
   summaries: DailySummary[] | undefined;
-  sleepEvents:
-    | { events: Array<SleepEvent | { category: string }> }
-    | undefined;
+  sleepEvents: { events: Array<SleepEvent | { category: string }> } | undefined;
 }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
@@ -197,11 +200,7 @@ function HealthScoreSection({
   const sleepPct = Math.min(active.sleepMins / TARGETS.sleepMinutes, 1);
 
   const scoreColor =
-    active.score >= 80
-      ? "#06d6a0"
-      : active.score >= 50
-        ? "#ffc145"
-        : "#ff6b6b";
+    active.score >= 80 ? "#06d6a0" : active.score >= 50 ? "#ffc145" : "#ff6b6b";
 
   return (
     <Card accent={scoreColor}>
@@ -231,7 +230,11 @@ function HealthScoreSection({
                   isActive ? "border-current" : ""
                 }`}
                 style={{
-                  borderColor: met ? "#06d6a0" : isActive ? scoreColor : "rgba(255,255,255,0.12)",
+                  borderColor: met
+                    ? "#06d6a0"
+                    : isActive
+                      ? scoreColor
+                      : "rgba(255,255,255,0.12)",
                   color: met ? "#06d6a0" : undefined,
                 }}
               >
@@ -255,7 +258,9 @@ function HealthScoreSection({
           color={scoreColor}
         >
           <div className="text-center">
-            <span className="text-5xl font-bold text-white">{active.score}</span>
+            <span className="text-5xl font-bold text-white">
+              {active.score}
+            </span>
             <p className="mt-0.5 text-[10px] tracking-widest text-zinc-500 uppercase">
               score
             </p>
@@ -283,12 +288,7 @@ function HealthScoreSection({
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <ProgressRing
-            size={64}
-            stroke={5}
-            progress={stepPct}
-            color="#06d6a0"
-          >
+          <ProgressRing size={64} stroke={5} progress={stepPct} color="#06d6a0">
             <Footprints size={18} className="text-emerald-400" />
           </ProgressRing>
           <div className="text-center">
@@ -344,11 +344,7 @@ function Card({
   return (
     <div
       className={`rounded-2xl border border-zinc-800 bg-[#111318] p-5 ${className}`}
-      style={
-        accent
-          ? { borderTopColor: accent, borderTopWidth: 2 }
-          : undefined
-      }
+      style={accent ? { borderTopColor: accent, borderTopWidth: 2 } : undefined}
     >
       {children}
     </div>
@@ -358,7 +354,10 @@ function Card({
 function IconCircle({
   children,
   color,
-}: { children: ReactNode; color: string }) {
+}: {
+  children: ReactNode;
+  color: string;
+}) {
   return (
     <div
       className="flex h-12 w-12 items-center justify-center rounded-xl"
@@ -411,7 +410,10 @@ function MetricCard({
 function SectionTitle({
   icon,
   children,
-}: { icon: ReactNode; children: ReactNode }) {
+}: {
+  icon: ReactNode;
+  children: ReactNode;
+}) {
   return (
     <h2 className="flex items-center gap-2 text-sm font-semibold tracking-wide text-zinc-300 uppercase">
       {icon}
@@ -496,7 +498,10 @@ function HeroMetrics({
         ? (() => {
             const hrs = summaries.filter((s) => s.avgHeartRate != null);
             return hrs.length > 0
-              ? Math.round(hrs.reduce((a, s) => a + (s.avgHeartRate ?? 0), 0) / hrs.length)
+              ? Math.round(
+                  hrs.reduce((a, s) => a + (s.avgHeartRate ?? 0), 0) /
+                    hrs.length,
+                )
               : null;
           })()
         : null;
@@ -575,13 +580,17 @@ function HeartRateSection({
     chartData.length > 0
       ? Math.round(chartData.reduce((a, d) => a + d.bpm, 0) / chartData.length)
       : 0;
-  const max = chartData.length > 0 ? Math.max(...chartData.map((d) => d.bpm)) : 0;
-  const min = chartData.length > 0 ? Math.min(...chartData.map((d) => d.bpm)) : 0;
+  const max =
+    chartData.length > 0 ? Math.max(...chartData.map((d) => d.bpm)) : 0;
+  const min =
+    chartData.length > 0 ? Math.min(...chartData.map((d) => d.bpm)) : 0;
 
   return (
     <Card accent="#e040fb">
       <div className="mb-4 flex items-center justify-between">
-        <SectionTitle icon={<Activity size={16} className="text-fuchsia-400" />}>
+        <SectionTitle
+          icon={<Activity size={16} className="text-fuchsia-400" />}
+        >
           Heart Rate — 24h
         </SectionTitle>
         <div className="flex gap-4 text-xs text-zinc-400">
@@ -609,7 +618,10 @@ function HeartRateSection({
                 <stop offset="100%" stopColor="#e040fb" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.04)"
+            />
             <XAxis
               dataKey="time"
               tick={{ fill: "#71717a", fontSize: 10 }}
@@ -641,7 +653,12 @@ function HeartRateSection({
               strokeWidth={2}
               fill="url(#hrGrad)"
               dot={false}
-              activeDot={{ r: 4, fill: "#e040fb", stroke: "#fff", strokeWidth: 1 }}
+              activeDot={{
+                r: 4,
+                fill: "#e040fb",
+                stroke: "#fff",
+                strokeWidth: 1,
+              }}
             />
           </AreaChart>
         </ResponsiveContainer>
@@ -652,14 +669,25 @@ function HeartRateSection({
 
 // ── Weekly Activity Bar Chart ────────────────────────────────────────
 
-const BAR_COLORS = ["#06d6a0", "#00c9db", "#738cff", "#e040fb", "#ff6b6b", "#ffc145", "#06d6a0"];
+const BAR_COLORS = [
+  "#06d6a0",
+  "#00c9db",
+  "#738cff",
+  "#e040fb",
+  "#ff6b6b",
+  "#ffc145",
+  "#06d6a0",
+];
 
 function WeeklyActivitySection({
   summaries,
-}: { summaries: DailySummary[] | undefined }) {
+}: {
+  summaries: DailySummary[] | undefined;
+}) {
   if (!summaries) return <Shimmer />;
 
   const chartData = summaries.map((s, i) => ({
+    date: s.date,
     day: dayLabel(s.date),
     steps: s.totalSteps ?? 0,
     calories: s.totalCalories ? Math.round(s.totalCalories) : 0,
@@ -667,15 +695,14 @@ function WeeklyActivitySection({
   }));
 
   const totalSteps = summaries.reduce((a, s) => a + (s.totalSteps ?? 0), 0);
-  const totalCals = summaries.reduce(
-    (a, s) => a + (s.totalCalories ?? 0),
-    0,
-  );
+  const totalCals = summaries.reduce((a, s) => a + (s.totalCalories ?? 0), 0);
 
   return (
     <Card accent="#06d6a0">
       <div className="mb-4 flex items-center justify-between">
-        <SectionTitle icon={<TrendingUp size={16} className="text-emerald-400" />}>
+        <SectionTitle
+          icon={<TrendingUp size={16} className="text-emerald-400" />}
+        >
           Weekly Activity
         </SectionTitle>
         <div className="flex gap-4 text-xs text-zinc-400">
@@ -701,7 +728,10 @@ function WeeklyActivitySection({
       ) : (
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={chartData} barCategoryGap="20%">
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.04)"
+            />
             <XAxis
               dataKey="day"
               tick={{ fill: "#71717a", fontSize: 11 }}
@@ -726,8 +756,8 @@ function WeeklyActivitySection({
               )}
             />
             <Bar dataKey="steps" radius={[6, 6, 0, 0]}>
-              {chartData.map((entry, idx) => (
-                <Cell key={`c-${idx}`} fill={entry.color} fillOpacity={0.85} />
+              {chartData.map((entry) => (
+                <Cell key={entry.date} fill={entry.color} fillOpacity={0.85} />
               ))}
             </Bar>
           </BarChart>
@@ -892,7 +922,8 @@ function ConnectionStatus() {
     userId: DEMO_USER_ID,
   });
 
-  const connected = connections?.filter((c) => (c.status as string) === "active") ?? [];
+  const connected =
+    connections?.filter((c) => (c.status as string) === "active") ?? [];
 
   return (
     <Card>
@@ -924,9 +955,7 @@ function ConnectionStatus() {
       ) : (
         <div className="mt-4 flex flex-wrap gap-2">
           {connected.map((c) => {
-            const sync = syncStatus?.find(
-              (s) => s.provider === c.provider,
-            );
+            const sync = syncStatus?.find((s) => s.provider === c.provider);
             return (
               <div
                 key={c.provider}
