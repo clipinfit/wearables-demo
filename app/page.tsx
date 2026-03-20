@@ -10,7 +10,7 @@ import type {
 } from "@clipin/convex-wearables";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { useState } from "react";
-import { api } from "../../convex/_generated/api";
+import { api } from "../convex/_generated/api";
 
 // Hardcoded demo user ID — in production this would come from auth
 const DEMO_USER_ID = "demo-user-1";

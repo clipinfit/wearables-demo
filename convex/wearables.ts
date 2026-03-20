@@ -18,9 +18,10 @@ export const wearables = new WearablesClient(components.wearables, {
       clientId: requireEnv("GARMIN_CLIENT_ID"),
       clientSecret: requireEnv("GARMIN_CLIENT_SECRET"),
     },
-    strava: {
-      clientId: requireEnv("STRAVA_CLIENT_ID"),
-      clientSecret: requireEnv("STRAVA_CLIENT_SECRET"),
-    },
+    // Another integration
+    // strava: {
+    //   clientId: requireEnv("STRAVA_CLIENT_ID"),
+    //   clientSecret: requireEnv("STRAVA_CLIENT_SECRET"),
+    // },
   },
 });
