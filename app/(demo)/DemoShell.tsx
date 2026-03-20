@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { type ReactNode, Suspense } from "react";
 
 const NAV = [
+  { href: "/", label: "Dashboard" },
   { href: "/workouts", label: "Workouts" },
   { href: "/sleep", label: "Sleep" },
   { href: "/summaries", label: "Summaries" },
@@ -17,7 +18,7 @@ function ConnectedFlash() {
   if (!connectedProvider) return null;
 
   return (
-    <div className="mb-6 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/30 dark:text-green-200">
+    <div className="mb-6 rounded-xl border border-emerald-800 bg-emerald-950/60 px-4 py-3 text-sm text-emerald-300">
       Successfully connected to{" "}
       <span className="font-medium capitalize">{connectedProvider}</span>! Data
       will start flowing in via webhooks.
@@ -29,45 +30,61 @@ export function DemoShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">
-            Wearables Demo
-          </h1>
-          <span className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-            @clipin/convex-wearables
-          </span>
-        </div>
-      </header>
+    <div className="relative min-h-screen bg-[#08090e]">
+      {/* Subtle grid texture */}
+      <div
+        className="pointer-events-none fixed inset-0 opacity-[0.035]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
+      />
 
-      <nav className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-5xl gap-1 px-6">
-          {NAV.map(({ href, label }) => {
-            const active = pathname === href;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`px-4 py-3 text-sm font-medium transition-colors ${
-                  active
-                    ? "border-b-2 border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      <div className="relative z-10 mx-auto max-w-6xl px-6 py-8">
+        {/* Header */}
+        <header className="mb-8 flex items-end justify-between">
+          <div>
+            <Link href="/">
+              <h1 className="text-3xl font-bold tracking-tight text-white">
+                Health Dashboard
+              </h1>
+            </Link>
+            <p className="mt-1 text-sm text-zinc-500">
+              {new Date().toLocaleDateString("en-US", {
+                weekday: "long",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+          <nav className="flex gap-1">
+            {NAV.map(({ href, label }) => {
+              const active = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                    active
+                      ? "bg-zinc-800 text-white"
+                      : "text-zinc-400 hover:bg-zinc-800/60 hover:text-zinc-200"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
+        </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-8">
-        <Suspense fallback={null}>
-          <ConnectedFlash />
-        </Suspense>
-        {children}
-      </main>
+        <main>
+          <Suspense fallback={null}>
+            <ConnectedFlash />
+          </Suspense>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

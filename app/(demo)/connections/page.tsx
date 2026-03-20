@@ -77,7 +77,7 @@ export default function ConnectionsPage() {
 
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+      <h2 className="mb-4 text-lg font-semibold text-zinc-100">
         Provider Connections
       </h2>
       <div className="space-y-3">
@@ -94,17 +94,17 @@ export default function ConnectionsPage() {
           return (
             <div
               key={provider}
-              className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+              className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-[#111318] p-4"
             >
               <div>
-                <p className="font-medium capitalize text-zinc-900 dark:text-zinc-100">
+                <p className="font-medium capitalize text-zinc-100">
                   {provider}
                 </p>
                 {isConnected && (
-                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-400">
                     {conn?.providerUserId && (
                       <>
-                        <span className="select-all font-mono text-zinc-600 dark:text-zinc-300">
+                        <span className="select-all font-mono text-zinc-300">
                           ID: {conn.providerUserId}
                         </span>
                         <button
@@ -113,7 +113,7 @@ export default function ConnectionsPage() {
                             const id = conn.providerUserId;
                             if (id) void handleCopyUserId(provider, id);
                           }}
-                          className="rounded border border-zinc-200 px-2 py-0.5 text-[11px] font-medium text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          className="rounded border border-zinc-700 px-2 py-0.5 text-[11px] font-medium text-zinc-300 hover:bg-zinc-800"
                           aria-label={`Copy ${provider} user ID`}
                         >
                           {copiedProvider === provider ? "Copied" : "Copy ID"}
@@ -133,11 +133,15 @@ export default function ConnectionsPage() {
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     isConnected
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+                      ? "bg-emerald-500/15 text-emerald-400"
+                      : "bg-white/[0.06] text-zinc-500"
                   }`}
                 >
-                  {isConnected ? "Connected" : "Not connected"}
+                  {isConnected
+                    ? "Connected"
+                    : connecting === provider
+                      ? "Connecting..."
+                      : "Not connected"}
                 </span>
                 {isConnected ? (
                   <button
@@ -148,7 +152,7 @@ export default function ConnectionsPage() {
                         provider,
                       })
                     }
-                    className="rounded-md bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
+                    className="rounded-lg bg-red-500/15 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/25"
                   >
                     Disconnect
                   </button>
@@ -157,17 +161,13 @@ export default function ConnectionsPage() {
                     type="button"
                     onClick={() => handleConnect(provider)}
                     disabled={!hasOAuth || connecting === provider}
-                    className={`rounded-md px-3 py-1.5 text-xs font-medium ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
                       hasOAuth
-                        ? "bg-zinc-900 text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                        : "cursor-not-allowed bg-zinc-200 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-600"
+                        ? "bg-white/10 text-white hover:bg-white/15"
+                        : "cursor-not-allowed bg-zinc-900 text-zinc-600"
                     }`}
                   >
-                    {connecting === provider
-                      ? "Connecting..."
-                      : hasOAuth
-                        ? "Connect"
-                        : "Coming soon"}
+                    Connect
                   </button>
                 )}
               </div>
@@ -182,7 +182,7 @@ export default function ConnectionsPage() {
 function Loading() {
   return (
     <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-cyan-400" />
     </div>
   );
 }

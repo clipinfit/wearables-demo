@@ -29,7 +29,7 @@ export default function SummariesPage() {
 
   return (
     <div>
-      <h2 className="mb-4 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
+      <h2 className="mb-4 text-lg font-semibold text-zinc-100">
         Weekly Activity Summary
       </h2>
       {summaries.length === 0 ? (
@@ -39,12 +39,12 @@ export default function SummariesPage() {
           {summaries.map((s: DailySummary) => (
             <div
               key={s._id}
-              className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+              className="rounded-2xl border border-zinc-800 bg-[#111318] p-4"
             >
-              <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              <p className="text-sm font-medium text-zinc-400">
                 {s.date}
               </p>
-              <div className="mt-2 space-y-1 text-sm text-zinc-700 dark:text-zinc-300">
+              <div className="mt-2 space-y-1 text-sm text-zinc-300">
                 {s.totalSteps != null && (
                   <p>{s.totalSteps.toLocaleString()} steps</p>
                 )}
@@ -68,15 +68,15 @@ export default function SummariesPage() {
 function Loading() {
   return (
     <div className="flex items-center justify-center py-12">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-zinc-100" />
+      <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-700 border-t-cyan-400" />
     </div>
   );
 }
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-8 text-center dark:border-zinc-700 dark:bg-zinc-900">
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">{message}</p>
+    <div className="rounded-2xl border border-dashed border-zinc-700 bg-zinc-900/40 p-8 text-center">
+      <p className="text-sm text-zinc-500">{message}</p>
     </div>
   );
 }

@@ -4,6 +4,16 @@ Demo app for exercising the local `@clipin/convex-wearables` Convex component.
 
 The demo now mounts Garmin webhook and OAuth callback routes via `registerRoutes(...)` from the package, so the host app does not duplicate Garmin HTTP handler logic locally.
 
+## Screenshots
+
+### Health dashboard
+
+![Health dashboard](public/health-dashboard.png)
+
+### Connections
+
+![Connections](public/connections.png)
+
 ## Local development
 
 Start the Next.js app:
