@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# wearables-demo
 
-## Getting Started
+Demo app for exercising the local `@clipin/convex-wearables` Convex component.
 
-First, run the development server:
+The demo now mounts Garmin webhook and OAuth callback routes via `registerRoutes(...)` from the package, so the host app does not duplicate Garmin HTTP handler logic locally.
+
+## Local development
+
+Start the Next.js app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+In a separate terminal, start Convex:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx convex dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The Convex dashboard shows logs for the dev deployment, but it does not pull code changes by itself. The local `npx convex dev` process is what uploads function changes.
 
-## Learn More
+## Refreshing the local `convex-wearables` component
 
-To learn more about Next.js, take a look at the following resources:
+This app depends on the component via a local file dependency:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```json
+"@clipin/convex-wearables": "file:../convex-wearables"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+That means changes in `../convex-wearables` are not live-linked into this app. npm copies a snapshot of the package into `node_modules` when you install dependencies. Because of that, the demo app can drift from the current component source unless you refresh it explicitly.
 
-## Deploy on Vercel
+Also note that the package exports used by this app point at `dist/`, not at the component source files directly, so rebuilding `../convex-wearables` is required.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+When you change code in `../convex-wearables`, use this flow:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Rebuild the component package:
+
+```bash
+cd ../convex-wearables
+npm run build
+```
+
+2. Refresh the copied package inside the demo app:
+
+```bash
+cd ../wearables-demo
+npm install
+```
+
+3. Restart or rerun Convex so the updated component snapshot is uploaded and codegen is refreshed:
+
+```bash
+npx convex dev
+```
+
+If `convex dev` is already running, stop it and start it again after steps 1 and 2.
+
+If npm still appears to use an old snapshot, delete `node_modules/@clipin/convex-wearables` and run `npm install` again.
+
+## Sanity check
+
+If the demo app is still calling old component code, inspect the generated component bindings:
+
+```bash
+rg "garminWebhooks|processPushPayload" convex/_generated/api.d.ts
+```
+
+If a new component module or function is missing there, the demo app has not picked up the latest local component snapshot yet.
+
+An error like `Couldn't resolve wearables.garminWebhooks.processPushPayload` usually means this generated file is still stale.
+
+One more constraint: the host app can only call component functions that are exposed as public `query`, `mutation`, or `action`. Component `internalQuery`, `internalMutation`, and `internalAction` functions are not callable through `components.wearables.*`.
