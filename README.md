@@ -12,7 +12,7 @@ The demo mounts Garmin webhook and OAuth callback routes via `registerRoutes(...
 
 ![Health dashboard](public/health-dashboard.png)
 
-### Connections
+### Integrations
 
 ![Connections](public/connections.png)
 
