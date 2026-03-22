@@ -45,7 +45,7 @@ function useDateRange() {
     const today = new Date();
     return {
       today: today.toISOString().split("T")[0],
-      weekAgo: new Date(today.getTime() - 7 * 86_400_000)
+      startDate: new Date(today.getTime() - 6 * 86_400_000)
         .toISOString()
         .split("T")[0],
     };
@@ -168,7 +168,7 @@ function HealthScoreSection({
   );
 
   // Build per-day data
-  const days = summaries.map((s) => {
+  const days = summaries.slice(-7).map((s) => {
     const sleepMins = getSleepForDate(sleeps, s.date);
     const calories = s.totalCalories ?? 0;
     const steps = s.totalSteps ?? 0;
@@ -182,7 +182,10 @@ function HealthScoreSection({
     };
   });
 
-  const activeIdx = selectedIdx ?? days.length - 1;
+  const activeIdx =
+    selectedIdx == null
+      ? days.length - 1
+      : Math.min(selectedIdx, days.length - 1);
   const active = days[activeIdx];
 
   if (!active) {
@@ -209,7 +212,7 @@ function HealthScoreSection({
       </SectionTitle>
 
       {/* Week pills */}
-      <div className="mt-5 flex justify-center gap-2">
+      <div className="mt-5 grid grid-cols-7 gap-1 sm:gap-2">
         {days.map((d, i) => {
           const isActive = i === activeIdx;
           const met = d.score >= 80;
@@ -218,15 +221,15 @@ function HealthScoreSection({
               key={d.date}
               type="button"
               onClick={() => setSelectedIdx(i)}
-              className={`flex flex-col items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-medium transition-all ${
+              className={`flex w-full min-w-0 flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] font-medium transition-all sm:px-2 ${
                 isActive
                   ? "bg-zinc-800 text-white"
                   : "text-zinc-500 hover:text-zinc-300"
               }`}
             >
-              <span>{d.day}</span>
+              <span className="truncate">{d.day}</span>
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 sm:h-8 sm:w-8 ${
                   isActive ? "border-current" : ""
                 }`}
                 style={{
@@ -985,12 +988,12 @@ function ConnectionStatus() {
 // ── Main Dashboard ───────────────────────────────────────────────────
 
 export default function DashboardPage() {
-  const { today, weekAgo } = useDateRange();
+  const { today, startDate } = useDateRange();
 
   const summaries = useQuery(api.summaries.daily, {
     userId: DEMO_USER_ID,
     category: "activity",
-    startDate: weekAgo,
+    startDate,
     endDate: today,
   });
 
