@@ -37,6 +37,9 @@ export default function WorkoutsPage() {
                     <p className="mt-1 text-sm text-zinc-400">
                       {new Date(event.startDatetime).toLocaleString()}
                     </p>
+                    <p className="mt-1 break-all font-mono text-xs text-zinc-500">
+                      externalId: {event.externalId ?? "missing"}
+                    </p>
                   </div>
                   <span className="text-sm text-zinc-300">
                     {event.sourceName}
