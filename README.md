@@ -10,7 +10,7 @@ The demo mounts Garmin webhook and OAuth callback routes via `registerRoutes(...
 
 ### Health dashboard
 
-![Health dashboard](public/health-dashboard.png)
+![Health dashboard](public/health-dashboard-v2.png)
 
 ### Integrations
 
