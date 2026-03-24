@@ -62,6 +62,22 @@ npx convex dev
 
 The Convex dashboard shows logs for the dev deployment, but it does not pull code changes by itself. The local `npx convex dev` process is what uploads function changes.
 
+## Demo time-series policy
+
+This demo includes a stored 30-day time-series retention policy with tighter compaction for dense metrics such as heart rate, SpO2, respiration, Garmin stress, and Garmin body battery.
+
+Apply it to the current Convex deployment with:
+
+```bash
+npx convex run wearablesPolicy:applyDemoTimeSeriesStoragePolicy '{}'
+```
+
+Inspect the currently stored policy with:
+
+```bash
+npx convex run wearablesPolicy:getTimeSeriesStoragePolicy '{}'
+```
+
 ## Updating `@clipin/convex-wearables`
 
 This app uses the real `@clipin/convex-wearables` package from npm rather than a local file dependency.

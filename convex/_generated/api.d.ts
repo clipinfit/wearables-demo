@@ -15,6 +15,7 @@ import type * as sleep from "../sleep.js";
 import type * as summaries from "../summaries.js";
 import type * as timeseries from "../timeseries.js";
 import type * as wearables from "../wearables.js";
+import type * as wearablesPolicy from "../wearablesPolicy.js";
 import type * as workouts from "../workouts.js";
 
 import type {
@@ -31,6 +32,7 @@ declare const fullApi: ApiFromModules<{
   summaries: typeof summaries;
   timeseries: typeof timeseries;
   wearables: typeof wearables;
+  wearablesPolicy: typeof wearablesPolicy;
   workouts: typeof workouts;
 }>;
 
@@ -86,7 +88,7 @@ export declare const components: {
             | "google";
           userId: string;
         },
-        any
+        null
       >;
       getByUserProvider: FunctionReference<
         "query",
@@ -125,6 +127,24 @@ export declare const components: {
         { userId: string },
         Array<string>
       >;
+      getEffectiveTimeSeriesPolicy: FunctionReference<
+        "query",
+        "internal",
+        {
+          provider:
+            | "garmin"
+            | "suunto"
+            | "polar"
+            | "whoop"
+            | "strava"
+            | "apple"
+            | "samsung"
+            | "google";
+          seriesType: string;
+          userId: string;
+        },
+        any
+      >;
       getLatestDataPoint: FunctionReference<
         "query",
         "internal",
@@ -146,7 +166,17 @@ export declare const components: {
         {
           hasMore: boolean;
           nextCursor: string | null;
-          points: Array<{ timestamp: number; value: number }>;
+          points: Array<{
+            avg?: number;
+            bucketMinutes?: number;
+            count?: number;
+            last?: number;
+            max?: number;
+            min?: number;
+            resolution?: "raw" | "rollup";
+            timestamp: number;
+            value: number;
+          }>;
         }
       >;
       getTimeSeriesForUser: FunctionReference<
@@ -159,7 +189,102 @@ export declare const components: {
           startDate: number;
           userId: string;
         },
-        Array<{ timestamp: number; value: number }>
+        Array<{
+          avg?: number;
+          bucketMinutes?: number;
+          count?: number;
+          last?: number;
+          max?: number;
+          min?: number;
+          resolution?: "raw" | "rollup";
+          timestamp: number;
+          value: number;
+        }>
+      >;
+      getTimeSeriesPolicyConfiguration: FunctionReference<
+        "query",
+        "internal",
+        {},
+        any
+      >;
+      getUserTimeSeriesPolicyPreset: FunctionReference<
+        "query",
+        "internal",
+        { userId: string },
+        { presetKey: string; updatedAt: number; userId: string } | null
+      >;
+      replaceTimeSeriesPolicyConfiguration: FunctionReference<
+        "mutation",
+        "internal",
+        {
+          defaultRules: Array<{
+            provider?:
+              | "garmin"
+              | "suunto"
+              | "polar"
+              | "whoop"
+              | "strava"
+              | "apple"
+              | "samsung"
+              | "google";
+            seriesType?: string;
+            tiers: Array<
+              | {
+                  fromAge: string | number;
+                  kind: "raw";
+                  toAge: string | number | null;
+                }
+              | {
+                  aggregations?: Array<
+                    "avg" | "min" | "max" | "last" | "count"
+                  >;
+                  bucket: string | number;
+                  fromAge: string | number;
+                  kind: "rollup";
+                  toAge: string | number | null;
+                }
+            >;
+          }>;
+          maintenance?: { enabled?: boolean; interval?: string | number };
+          presets?: Array<{
+            key: string;
+            rules: Array<{
+              provider?:
+                | "garmin"
+                | "suunto"
+                | "polar"
+                | "whoop"
+                | "strava"
+                | "apple"
+                | "samsung"
+                | "google";
+              seriesType?: string;
+              tiers: Array<
+                | {
+                    fromAge: string | number;
+                    kind: "raw";
+                    toAge: string | number | null;
+                  }
+                | {
+                    aggregations?: Array<
+                      "avg" | "min" | "max" | "last" | "count"
+                    >;
+                    bucket: string | number;
+                    fromAge: string | number;
+                    kind: "rollup";
+                    toAge: string | number | null;
+                  }
+              >;
+            }>;
+          }>;
+        },
+        { defaultRulesStored: number; presetsStored: number }
+      >;
+      setUserTimeSeriesPolicyPreset: FunctionReference<
+        "mutation",
+        "internal",
+        { presetKey: string | null; userId: string },
+        null
       >;
     };
     dataSources: {
@@ -249,7 +374,7 @@ export declare const components: {
         "action",
         "internal",
         { garminClientId: string; payload?: any; payloadJson?: string },
-        any
+        null
       >;
     };
     lifecycle: {
@@ -257,7 +382,7 @@ export declare const components: {
         "mutation",
         "internal",
         { userId: string },
-        any
+        null
       >;
     };
     menstrualCycles: {
