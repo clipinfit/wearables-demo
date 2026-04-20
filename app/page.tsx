@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  DailySummary,
-  SleepEvent,
-  WorkoutEvent,
-} from "@clipin/convex-wearables";
+import type { SleepEvent, WorkoutEvent } from "@clipin/convex-wearables";
 import { useQuery } from "convex/react";
 import {
   Activity,
@@ -35,6 +31,15 @@ import {
   YAxis,
 } from "recharts";
 import { api } from "../convex/_generated/api";
+import {
+  type ActivitySummaryView,
+  buildActivitySummaries,
+} from "./activitySummaries";
+import {
+  addLocalDays,
+  formatLocalDateKey,
+  localDateKeyToDate,
+} from "./dateUtils";
 
 const DEMO_USER_ID = "demo-user-1";
 
@@ -44,10 +49,8 @@ function useDateRange() {
   return useState(() => {
     const today = new Date();
     return {
-      today: today.toISOString().split("T")[0],
-      startDate: new Date(today.getTime() - 6 * 86_400_000)
-        .toISOString()
-        .split("T")[0],
+      today: formatLocalDateKey(today),
+      startDate: formatLocalDateKey(addLocalDays(today, -6)),
     };
   })[0];
 }
@@ -145,8 +148,8 @@ function getSleepForDate(sleepEvents: SleepEvent[], dateStr: string): number {
     const start = new Date(s.startDatetime);
     const wakeDate =
       start.getHours() >= 18
-        ? new Date(start.getTime() + 86_400_000).toISOString().split("T")[0]
-        : start.toISOString().split("T")[0];
+        ? formatLocalDateKey(addLocalDays(start, 1))
+        : formatLocalDateKey(start);
     if (wakeDate === dateStr) return s.sleepTotalDurationMinutes;
   }
   return 0;
@@ -156,7 +159,7 @@ function HealthScoreSection({
   summaries,
   sleepEvents,
 }: {
-  summaries: DailySummary[] | undefined;
+  summaries: ActivitySummaryView[] | undefined;
   sleepEvents: { events: Array<SleepEvent | { category: string }> } | undefined;
 }) {
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
@@ -484,7 +487,7 @@ function HeroMetrics({
   sleepEvents,
   hrData,
 }: {
-  summaries: DailySummary[] | undefined;
+  summaries: ActivitySummaryView[] | undefined;
   sleepEvents: { events: Array<SleepEvent | { category: string }> } | undefined;
   hrData: Array<{ timestamp: number; value: number }> | undefined;
 }) {
@@ -685,7 +688,7 @@ const BAR_COLORS = [
 function WeeklyActivitySection({
   summaries,
 }: {
-  summaries: DailySummary[] | undefined;
+  summaries: ActivitySummaryView[] | undefined;
 }) {
   if (!summaries) return <Shimmer />;
 
@@ -989,12 +992,29 @@ function ConnectionStatus() {
 
 export default function DashboardPage() {
   const { today, startDate } = useDateRange();
+  const activityWindowStart = localDateKeyToDate(startDate).getTime();
+  const activityWindowEnd = addLocalDays(
+    localDateKeyToDate(today),
+    1,
+  ).getTime();
 
   const summaries = useQuery(api.summaries.daily, {
     userId: DEMO_USER_ID,
     category: "activity",
     startDate,
     endDate: today,
+  });
+  const stepSeries = useQuery(api.timeseries.range, {
+    userId: DEMO_USER_ID,
+    seriesType: "steps",
+    startDate: activityWindowStart,
+    endDate: activityWindowEnd,
+  });
+  const energySeries = useQuery(api.timeseries.range, {
+    userId: DEMO_USER_ID,
+    seriesType: "energy",
+    startDate: activityWindowStart,
+    endDate: activityWindowEnd,
   });
 
   const workouts = useQuery(api.workouts.list, {
@@ -1009,9 +1029,16 @@ export default function DashboardPage() {
     userId: DEMO_USER_ID,
     hoursBack: 24,
   });
+  const activitySummaries = buildActivitySummaries({
+    summaries,
+    stepPoints: stepSeries,
+    energyPoints: energySeries,
+    startDate,
+    endDate: today,
+  });
 
   const allLoading =
-    summaries === undefined &&
+    activitySummaries === undefined &&
     workouts === undefined &&
     sleepData === undefined &&
     hrData === undefined;
@@ -1074,7 +1101,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {/* Hero Metric Cards */}
             <HeroMetrics
-              summaries={summaries}
+              summaries={activitySummaries}
               sleepEvents={sleepData}
               hrData={hrData}
             />
@@ -1083,13 +1110,13 @@ export default function DashboardPage() {
             <div className="grid gap-6 lg:grid-cols-5">
               <div className="lg:col-span-2">
                 <HealthScoreSection
-                  summaries={summaries}
+                  summaries={activitySummaries}
                   sleepEvents={sleepData}
                 />
               </div>
               <div className="lg:col-span-3 grid gap-6">
                 <HeartRateSection hrData={hrData} />
-                <WeeklyActivitySection summaries={summaries} />
+                <WeeklyActivitySection summaries={activitySummaries} />
               </div>
             </div>
 

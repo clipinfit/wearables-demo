@@ -1,9 +1,17 @@
 "use client";
 
-import type { DailySummary } from "@clipin/convex-wearables";
 import { useQuery } from "convex/react";
 import { useState } from "react";
 import { api } from "../../../convex/_generated/api";
+import {
+  type ActivitySummaryView,
+  buildActivitySummaries,
+} from "../../activitySummaries";
+import {
+  addLocalDays,
+  formatLocalDateKey,
+  localDateKeyToDate,
+} from "../../dateUtils";
 
 const DEMO_USER_ID = "demo-user-1";
 
@@ -11,12 +19,15 @@ export default function SummariesPage() {
   const [{ today, weekAgo }] = useState(() => {
     const today = new Date();
     return {
-      today: today.toISOString().split("T")[0],
-      weekAgo: new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0],
+      today: formatLocalDateKey(today),
+      weekAgo: formatLocalDateKey(addLocalDays(today, -7)),
     };
   });
+  const activityWindowStart = localDateKeyToDate(weekAgo).getTime();
+  const activityWindowEnd = addLocalDays(
+    localDateKeyToDate(today),
+    1,
+  ).getTime();
 
   const summaries = useQuery(api.summaries.daily, {
     userId: DEMO_USER_ID,
@@ -24,21 +35,40 @@ export default function SummariesPage() {
     startDate: weekAgo,
     endDate: today,
   });
+  const stepSeries = useQuery(api.timeseries.range, {
+    userId: DEMO_USER_ID,
+    seriesType: "steps",
+    startDate: activityWindowStart,
+    endDate: activityWindowEnd,
+  });
+  const energySeries = useQuery(api.timeseries.range, {
+    userId: DEMO_USER_ID,
+    seriesType: "energy",
+    startDate: activityWindowStart,
+    endDate: activityWindowEnd,
+  });
+  const activitySummaries = buildActivitySummaries({
+    summaries,
+    stepPoints: stepSeries,
+    energyPoints: energySeries,
+    startDate: weekAgo,
+    endDate: today,
+  });
 
-  if (summaries === undefined) return <Loading />;
+  if (activitySummaries === undefined) return <Loading />;
 
   return (
     <div>
       <h2 className="mb-4 text-lg font-semibold text-zinc-100">
         Weekly Activity Summary
       </h2>
-      {summaries.length === 0 ? (
+      {activitySummaries.length === 0 ? (
         <EmptyState message="No activity summaries yet." />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {summaries.map((s: DailySummary) => (
+          {activitySummaries.map((s: ActivitySummaryView) => (
             <div
-              key={s._id}
+              key={s.date}
               className="rounded-2xl border border-zinc-800 bg-[#111318] p-4"
             >
               <p className="text-sm font-medium text-zinc-400">{s.date}</p>

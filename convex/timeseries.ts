@@ -23,6 +23,21 @@ export const heartRate = query({
 });
 
 /**
+ * Get a time-series window for any metric.
+ */
+export const range = query({
+  args: {
+    userId: v.string(),
+    seriesType: v.string(),
+    startDate: v.number(),
+    endDate: v.number(),
+  },
+  handler: async (ctx, args) => {
+    return await wearables.getTimeSeries(ctx, args);
+  },
+});
+
+/**
  * Get the latest value for any metric.
  */
 export const latest = query({

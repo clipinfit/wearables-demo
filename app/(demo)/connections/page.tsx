@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  BackfillJob,
   Connection,
   ProviderName,
   SyncStatus,
@@ -19,9 +20,17 @@ export default function ConnectionsPage() {
   const syncStatus = useQuery(api.connections.syncStatus, {
     userId: DEMO_USER_ID,
   });
+  const garminConnection =
+    connections?.find((c: Connection) => c.provider === "garmin") ?? null;
+  const garminBackfill = useQuery(
+    api.connections.garminBackfillStatus,
+    garminConnection ? { connectionId: garminConnection._id } : "skip",
+  );
   const disconnectMutation = useMutation(api.connections.disconnect);
   const getGarminAuthUrl = useAction(api.garminOAuth.getAuthUrl);
+  const startGarminBackfill = useAction(api.connections.startGarminBackfill);
   const [connecting, setConnecting] = useState<ProviderName | null>(null);
+  const [backfillPending, setBackfillPending] = useState(false);
   const [copiedProvider, setCopiedProvider] = useState<ProviderName | null>(
     null,
   );
@@ -75,6 +84,22 @@ export default function ConnectionsPage() {
     }
   }
 
+  async function handleGarminBackfill(connectionId: string) {
+    setBackfillPending(true);
+    try {
+      await startGarminBackfill({
+        connectionId,
+        lookbackDays: 7,
+      });
+    } catch (e) {
+      alert(
+        `Failed to start Garmin backfill: ${e instanceof Error ? e.message : e}`,
+      );
+    } finally {
+      setBackfillPending(false);
+    }
+  }
+
   return (
     <div>
       <h2 className="mb-4 text-lg font-semibold text-zinc-100">
@@ -90,6 +115,11 @@ export default function ConnectionsPage() {
           );
           const isConnected = conn?.status === "active";
           const hasOAuth = oauthReady.has(provider);
+          const backfillJob: BackfillJob | null =
+            provider === "garmin" ? (garminBackfill ?? null) : null;
+          const backfillRunning =
+            backfillJob?.status === "queued" ||
+            backfillJob?.status === "running";
 
           return (
             <div
@@ -126,10 +156,38 @@ export default function ConnectionsPage() {
                         ? `Last synced: ${new Date(status.lastSyncedAt).toLocaleString()}`
                         : "Not yet synced"}
                     </span>
+                    {provider === "garmin" && backfillJob && (
+                      <>
+                        <span aria-hidden="true">&middot;</span>
+                        <span>
+                          {backfillJob.status === "failed"
+                            ? `Backfill failed: ${backfillJob.error ?? "unknown error"}`
+                            : `Backfill ${backfillJob.status}`}
+                        </span>
+                      </>
+                    )}
                   </p>
                 )}
               </div>
               <div className="flex items-center gap-3">
+                {provider === "garmin" && isConnected && conn?._id && (
+                  <button
+                    type="button"
+                    onClick={() => handleGarminBackfill(conn._id)}
+                    disabled={backfillPending || backfillRunning}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium ${
+                      backfillPending || backfillRunning
+                        ? "cursor-not-allowed bg-zinc-900 text-zinc-500"
+                        : "bg-cyan-500/15 text-cyan-400 hover:bg-cyan-500/25"
+                    }`}
+                  >
+                    {backfillRunning
+                      ? "Backfill running..."
+                      : backfillPending
+                        ? "Starting..."
+                        : "Backfill last 7 days"}
+                  </button>
+                )}
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     isConnected
