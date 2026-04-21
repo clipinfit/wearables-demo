@@ -87,6 +87,10 @@ function computeDayScore(
   return Math.round(((calPct + stepPct + sleepPct) / 3) * 100);
 }
 
+function getScoreColor(score: number): string {
+  return score >= 80 ? "#06d6a0" : score >= 50 ? "#ffc145" : "#ff6b6b";
+}
+
 function ProgressRing({
   size,
   stroke,
@@ -173,7 +177,7 @@ function HealthScoreSection({
   // Build per-day data
   const days = summaries.slice(-7).map((s) => {
     const sleepMins = getSleepForDate(sleeps, s.date);
-    const calories = s.totalCalories ?? 0;
+    const calories = s.activeCalories ?? 0;
     const steps = s.totalSteps ?? 0;
     return {
       date: s.date,
@@ -205,8 +209,7 @@ function HealthScoreSection({
   const stepPct = Math.min(active.steps / TARGETS.steps, 1);
   const sleepPct = Math.min(active.sleepMins / TARGETS.sleepMinutes, 1);
 
-  const scoreColor =
-    active.score >= 80 ? "#06d6a0" : active.score >= 50 ? "#ffc145" : "#ff6b6b";
+  const scoreColor = getScoreColor(active.score);
 
   return (
     <Card accent={scoreColor}>
@@ -219,6 +222,7 @@ function HealthScoreSection({
         {days.map((d, i) => {
           const isActive = i === activeIdx;
           const met = d.score >= 80;
+          const dayScoreColor = getScoreColor(d.score);
           return (
             <button
               key={d.date}
@@ -236,12 +240,8 @@ function HealthScoreSection({
                   isActive ? "border-current" : ""
                 }`}
                 style={{
-                  borderColor: met
-                    ? "#06d6a0"
-                    : isActive
-                      ? scoreColor
-                      : "rgba(255,255,255,0.12)",
-                  color: met ? "#06d6a0" : undefined,
+                  borderColor: dayScoreColor,
+                  color: dayScoreColor,
                 }}
               >
                 {met ? (
@@ -532,10 +532,10 @@ function HeroMetrics({
       />
       <MetricCard
         icon={<Flame size={24} />}
-        label="Calories"
+        label="Active Cal"
         value={
-          todaySummary?.totalCalories != null
-            ? Math.round(todaySummary.totalCalories).toLocaleString()
+          todaySummary?.activeCalories != null
+            ? Math.round(todaySummary.activeCalories).toLocaleString()
             : "--"
         }
         unit="kcal"
@@ -696,12 +696,11 @@ function WeeklyActivitySection({
     date: s.date,
     day: dayLabel(s.date),
     steps: s.totalSteps ?? 0,
-    calories: s.totalCalories ? Math.round(s.totalCalories) : 0,
     color: BAR_COLORS[i % BAR_COLORS.length],
   }));
 
   const totalSteps = summaries.reduce((a, s) => a + (s.totalSteps ?? 0), 0);
-  const totalCals = summaries.reduce((a, s) => a + (s.totalCalories ?? 0), 0);
+  const totalCals = summaries.reduce((a, s) => a + (s.activeCalories ?? 0), 0);
 
   return (
     <Card accent="#06d6a0">
@@ -723,7 +722,7 @@ function WeeklyActivitySection({
             <strong className="text-white">
               {Math.round(totalCals).toLocaleString()}
             </strong>{" "}
-            kcal
+            active kcal
           </span>
         </div>
       </div>

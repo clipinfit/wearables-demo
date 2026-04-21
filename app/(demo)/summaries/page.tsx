@@ -76,8 +76,8 @@ export default function SummariesPage() {
                 {s.totalSteps != null && (
                   <p>{s.totalSteps.toLocaleString()} steps</p>
                 )}
-                {s.totalCalories != null && (
-                  <p>{Math.round(s.totalCalories)} kcal</p>
+                {s.activeCalories != null && (
+                  <p>{Math.round(s.activeCalories)} active kcal</p>
                 )}
                 {s.activeMinutes != null && <p>{s.activeMinutes} active min</p>}
                 {s.totalDistance != null && (

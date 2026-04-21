@@ -13,7 +13,7 @@ export interface TimeSeriesPoint {
 export interface ActivitySummaryView {
   date: string;
   totalSteps?: number | null;
-  totalCalories?: number | null;
+  activeCalories?: number | null;
   avgHeartRate?: number | null;
   activeMinutes?: number | null;
   totalDistance?: number | null;
@@ -23,7 +23,7 @@ function mapDailySummary(summary: DailySummary): ActivitySummaryView {
   return {
     date: summary.date,
     totalSteps: summary.totalSteps,
-    totalCalories: summary.totalCalories,
+    activeCalories: summary.activeCalories,
     avgHeartRate: summary.avgHeartRate,
     activeMinutes: summary.activeMinutes,
     totalDistance: summary.totalDistance,
@@ -82,7 +82,7 @@ export function buildActivitySummaries(args: {
   return enumerateDateKeys(startDate, endDate).map((date) => ({
     date,
     totalSteps: stepsByDate.get(date) ?? 0,
-    totalCalories: caloriesByDate.get(date) ?? 0,
+    activeCalories: caloriesByDate.get(date) ?? 0,
     avgHeartRate: null,
   }));
 }
