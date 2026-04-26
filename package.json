@@ -10,23 +10,23 @@
     "format": "biome check --write ."
   },
   "dependencies": {
-    "@clipin/convex-wearables": "^0.1.0",
-    "convex": "^1.34.0",
-    "convex-helpers": "^0.1.114",
-    "lucide-react": "^0.577.0",
-    "next": "16.2.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "recharts": "^3.8.0"
+    "@clipin/convex-wearables": "^0.1.2",
+    "convex": "^1.36.1",
+    "convex-helpers": "^0.1.115",
+    "lucide-react": "^1.11.0",
+    "next": "16.2.4",
+    "react": "19.2.5",
+    "react-dom": "19.2.5",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.8",
+    "@biomejs/biome": "^2.4.13",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^6"
   }
 }
