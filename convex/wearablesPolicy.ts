@@ -15,10 +15,25 @@ const DEMO_TIME_SERIES_POLICY: DemoTimeSeriesPolicyInput = {
     {
       seriesType: "heart_rate",
       tiers: [
-        { kind: "raw", fromAge: "0m", toAge: "48h" },
-        { kind: "rollup", fromAge: "48h", toAge: "14d", bucket: "15m" },
+        { kind: "raw", fromAge: "0m", toAge: "24h" },
+        { kind: "rollup", fromAge: "24h", toAge: "14d", bucket: "15m" },
         { kind: "rollup", fromAge: "14d", toAge: "30d", bucket: "1h" },
       ],
+    },
+    {
+      seriesType: "heart_rate_variability_sdnn",
+      tiers: [
+        { kind: "raw", fromAge: "0m", toAge: "24h" },
+        { kind: "rollup", fromAge: "24h", toAge: "30d", bucket: "30m" },
+      ],
+    },
+    {
+      seriesType: "steps",
+      tiers: [{ kind: "raw", fromAge: "0m", toAge: "7d" }],
+    },
+    {
+      seriesType: "energy",
+      tiers: [{ kind: "raw", fromAge: "0m", toAge: "7d" }],
     },
     {
       seriesType: "oxygen_saturation",
