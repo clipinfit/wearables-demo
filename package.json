@@ -10,7 +10,7 @@
     "format": "biome check --write ."
   },
   "dependencies": {
-    "@clipin/convex-wearables": "^0.4.0",
+    "@clipin/convex-wearables": "1.0.0",
     "convex": "^1.39.1",
     "convex-helpers": "^0.1.118",
     "lucide-react": "^1.16.0",

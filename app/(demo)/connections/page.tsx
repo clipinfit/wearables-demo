@@ -3,7 +3,7 @@
 import type {
   BackfillJob,
   Connection,
-  ProviderName,
+  CredentialedProviderName,
   SyncStatus,
 } from "@clipin/convex-wearables";
 import { useAction, useMutation, useQuery } from "convex/react";
@@ -29,11 +29,12 @@ export default function ConnectionsPage() {
   const disconnectMutation = useMutation(api.connections.disconnect);
   const getGarminAuthUrl = useAction(api.garminOAuth.getAuthUrl);
   const startGarminBackfill = useAction(api.connections.startGarminBackfill);
-  const [connecting, setConnecting] = useState<ProviderName | null>(null);
-  const [backfillPending, setBackfillPending] = useState(false);
-  const [copiedProvider, setCopiedProvider] = useState<ProviderName | null>(
+  const [connecting, setConnecting] = useState<CredentialedProviderName | null>(
     null,
   );
+  const [backfillPending, setBackfillPending] = useState(false);
+  const [copiedProvider, setCopiedProvider] =
+    useState<CredentialedProviderName | null>(null);
 
   if (connections === undefined || configuredProviders === undefined) {
     return <Loading />;
@@ -41,7 +42,7 @@ export default function ConnectionsPage() {
 
   const oauthReady = new Set(configuredProviders);
 
-  const providers: ProviderName[] = [
+  const providers: CredentialedProviderName[] = [
     "garmin",
     "strava",
     "whoop",
@@ -49,7 +50,7 @@ export default function ConnectionsPage() {
     "suunto",
   ];
 
-  async function handleConnect(provider: ProviderName) {
+  async function handleConnect(provider: CredentialedProviderName) {
     setConnecting(provider);
     try {
       let authUrl: string;
@@ -70,7 +71,7 @@ export default function ConnectionsPage() {
   }
 
   async function handleCopyUserId(
-    provider: ProviderName,
+    provider: CredentialedProviderName,
     providerUserId: string,
   ) {
     try {

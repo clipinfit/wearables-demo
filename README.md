@@ -20,13 +20,13 @@ The demo mounts Garmin webhook and OAuth callback routes via `registerRoutes(...
 
 This demo uses the real `@clipin/convex-wearables` package and the Garmin routes it exposes, so you need the same core variables that the component setup expects.
 
-At minimum, make sure these values are configured before running the demo:
+Set the Convex URL before running the demo. Add both Garmin credentials to enable Garmin connections and webhooks. The dashboard can run without Garmin credentials.
 
 ```bash
 # Created or updated by `npx convex dev`
 NEXT_PUBLIC_CONVEX_URL=https://<your-deployment>.convex.cloud
 
-# Garmin credentials used by the component client and mounted HTTP routes
+# Optional Garmin credentials used by the component client and mounted HTTP routes
 GARMIN_CLIENT_ID=...
 GARMIN_CLIENT_SECRET=...
 
@@ -38,7 +38,7 @@ CONVEX_SITE_URL=https://<your-deployment>.convex.site
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-`NEXT_PUBLIC_CONVEX_URL` belongs in `.env.local`. The Garmin credentials and `CONVEX_SITE_URL` must also be available to the Convex runtime used by this demo.
+`NEXT_PUBLIC_CONVEX_URL` belongs in `.env.local`. To use Garmin, set both credentials and `CONVEX_SITE_URL` in the Convex runtime used by this demo.
 
 For the full component setup, provider configuration, and webhook route details, read the upstream docs:
 

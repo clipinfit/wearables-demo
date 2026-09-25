@@ -4,24 +4,24 @@
 import { WearablesClient } from "@clipin/convex-wearables";
 import { components } from "./_generated/api";
 
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (value === undefined || value === "") {
-    throw new Error(`${name} must be set`);
-  }
-  return value;
+const garminClientId = process.env.GARMIN_CLIENT_ID;
+const garminClientSecret = process.env.GARMIN_CLIENT_SECRET;
+
+if (Boolean(garminClientId) !== Boolean(garminClientSecret)) {
+  throw new Error(
+    "GARMIN_CLIENT_ID and GARMIN_CLIENT_SECRET must be set together",
+  );
 }
 
 export const wearables = new WearablesClient(components.wearables, {
   providers: {
-    garmin: {
-      clientId: requireEnv("GARMIN_CLIENT_ID"),
-      clientSecret: requireEnv("GARMIN_CLIENT_SECRET"),
-    },
-    // Another integration
-    // strava: {
-    //   clientId: requireEnv("STRAVA_CLIENT_ID"),
-    //   clientSecret: requireEnv("STRAVA_CLIENT_SECRET"),
-    // },
+    ...(garminClientId && garminClientSecret
+      ? {
+          garmin: {
+            clientId: garminClientId,
+            clientSecret: garminClientSecret,
+          },
+        }
+      : {}),
   },
 });

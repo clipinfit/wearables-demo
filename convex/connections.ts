@@ -22,7 +22,10 @@ const providerName = v.union(
 export const configuredProviders = query({
   args: {},
   returns: v.array(providerName),
-  handler: async () => wearables.getConfiguredProviders(),
+  handler: async () =>
+    wearables
+      .getConfiguredProviders()
+      .filter((provider) => provider !== "synthetic"),
 });
 
 /**
